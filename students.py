@@ -18,12 +18,12 @@ def main():
     ### Exercise 1
     solution_ex1 = solve_ex1(TX_IN_EX1, ALICE, BOB, 1000, 2000)
     print_tx(solution_ex1, 'Transaction solution_ex1')
-    # post_tx(solution_ex1)  # TODO uncomment this line if you want to post the transaction to the testnet
+    post_tx(solution_ex1)  # TODO uncomment this line if you want to post the transaction to the testnet
 
     ### Exercise 2
     solution_ex2 = solve_ex2(TX_IN_EX2, CAROL, 2500)
     print_tx(solution_ex2, 'Transaction solution_ex2')
-    # post_tx(solution_ex2)  # TODO uncomment this line if you want to post the transaction to the testnet
+    post_tx(solution_ex2)  # TODO uncomment this line if you want to post the transaction to the testnet
 
     ### Exercise 3
     solution_ex3 = solve_ex3(TX_IN_EX3, DAVE, 4000)
@@ -42,8 +42,17 @@ def solve_ex1(tx_in: TxInput, id_alice: Id, id_bob: Id, amount_alice: int, amoun
     sig_alice = id_alice.sk.sign_input(tx, 0, SCRIPT_PK_EX1)
     sig_bob = id_bob.sk.sign_input(tx, 0, SCRIPT_PK_EX1)
 
+    # create multisig tx
+    script = ['OP_0', sig_alice, sig_bob]
+
     #### Set unlocking script (script_sig) to match the locking script (script_pk) of the given input 
-    tx_in.script_sig = Script(['OP_0']) # TODO replace 'OP_0' with your solution here
+    tx_in.script_sig = Script(script) # TODO replace 'OP_0' with your solution here
+
+    # https://live.blockcypher.com/btc-testnet/tx/31e1aacd10835b2fca31c6bdeaa7037deeb20a370ec10927b2f199750c4e70e7/
+
+    print(tx)
+    print(id_alice.addr)
+    print(id_bob.addr)
 
     return tx
 
@@ -57,8 +66,18 @@ def solve_ex2(tx_in: TxInput, id_carol: Id, amount: int) -> Transaction:  # You 
     #### Create signature(s)
     sig_carol = id_carol.sk.sign_input(tx, 0, SCRIPT_PK_EX2)
 
+    script = [
+        sig_carol,
+        id_carol.pk.to_hex(), 
+        PUNISH_SECRET,
+        'OP_1'
+    ]
+
     #### Set unlocking script (script_sig) to match the locking script (script_pk) of the given input 
-    tx_in.script_sig = Script(['OP_0']) # TODO replace 'OP_0' with your solution here
+    tx_in.script_sig = Script(script) # TODO replace 'OP_0' with your solution here
+
+    print(tx)
+    print(id_carol.addr)
 
     return tx
 
